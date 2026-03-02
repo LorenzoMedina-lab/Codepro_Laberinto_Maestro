@@ -34,7 +34,21 @@ return matriz;
 }
 void destruirMatriz(int** matriz, int filas) {
     for (int i = 0; i < filas; i++) {
-        delete[] matriz; // Aqui borra cada fila 
+        delete[] matriz[i]; // Aqui borra cada fila 
     }
     delete[] matriz; // Aqui borra el contenedor de filas 
+}
+void imprimirLaberinto(int** matriz, int filas, int columnas){
+    for (int i =0; i <filas; i++){
+        for (int j = 0; j < columnas; j++) {
+            // Si el valor es 1 (Mi PARED), se dibuja el numero con #
+            if (matriz[i][j]== PARED){
+                cout << "##";
+            }
+            else {
+                cout << "  ";
+            }
+        }
+        cout << endl; // Salto de linea al terminar cada fila
+    }
 }
