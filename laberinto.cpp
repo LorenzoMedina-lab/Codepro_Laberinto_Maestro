@@ -32,3 +32,9 @@ for (int i = 0; i < filas; i++) {
 }
 return matriz;
 }
+void destruirMatriz(int** matriz, int filas) {
+    for (int i = 0; i < filas; i++) {
+        delete[] matriz; // Aqui borra cada fila 
+    }
+    delete[] matriz; // Aqui borra el contenedor de filas 
+}
