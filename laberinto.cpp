@@ -52,3 +52,40 @@ void imprimirLaberinto(int** matriz, int filas, int columnas){
         cout << endl; // Salto de linea al terminar cada fila
     }
 }
+void generarLaberinto(int** matriz, int filas, int columnas){
+    // Preparo la mochila (pila) y el punto de donde partira
+    stack<Punto> pila;
+    Punto inicio = {1,1};
+    matriz[inicio.y][inicio.x]= CAMINO;
+    pila.push(inicio);
+    // "Semilla" para que cada laberinto sea distinto
+    srand(time(NULL));
+    while (!pila.empty()) {
+        Punto actual = pila.top();
+        vector<Punto> vecinos;
+        // Aqui se busca vecinos validos a 2 pasos de distancia
+        for (int i = 0; i < 4; i++) {
+            int ny = actual.y + dy[i];
+            int nx = actual.x + dx[i];
+            // Se verifica que este dentro de los limites y sea pared
+            if (ny > 0 && ny < filas - 1 && nx > 0 && nx < columnas -1 && matriz[ny][nx] == PARED) {
+              vecinos.push_back({ny,nx}); 
+            }
+        }
+     // Se puede seguir cavando?
+     if(!vecinos.empty()) {
+        Punto elegido = vecinos[rand() % vecinos.size()];
+        // Se rompe la pared intermedia entre el actual y el elegido
+        matriz[(actual.y + elegido.y) / 2][(actual.x + elegido.x) / 2] = CAMINO;
+        // Aqui se marca el destino como camino y se ingresa a la pila
+        matriz[elegido.y][elegido.x] = CAMINO;
+        pila.push(elegido);
+     }  else {
+        // Si no hay salida, retrocede
+        pila.pop();
+     }
+    }
+    // Aseguro que la entrada y la salida estan marcadas 
+    matriz[1][1] = CAMINO;
+    matriz[filas - 2][columnas - 2] = CAMINO;
+}
