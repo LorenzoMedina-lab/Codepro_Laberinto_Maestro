@@ -18,7 +18,7 @@ const int RUTA_SOLUCION = 2;
 // {y,x}
 int dy[] = {0,0,2,-2};
 int dx[] = {2,-2,0,0};
-// Aqui creo la matriz del labertinto
+// Aqui creo la matriz del labertinto "Aqui tambien le socilicito la memoria a utilizar"
 int** crearMatriz(int filas, int columnas) {
     // Aqui designo el espacio para las filas ("Arreglo de punteros")
     int** matriz = new int *[filas];
@@ -32,13 +32,13 @@ for (int i = 0; i < filas; i++) {
 }
 return matriz;
 }
-void destruirMatriz(int** matriz, int filas) {
+void destruirMatriz(int** matriz, int filas) {   // Aqui le indico que destruya ese proceso para volver la liberar la memoria que le solicite al princicio
     for (int i = 0; i < filas; i++) {
         delete[] matriz[i]; // Aqui borra cada fila 
     }
     delete[] matriz; // Aqui borra el contenedor de filas 
 }
-void imprimirLaberinto(int** matriz, int filas, int columnas){
+void imprimirLaberinto(int** matriz, int filas, int columnas){   // Aqui en esta funcion (void) se imprime mi tablero 
     for (int i =0; i <filas; i++){
         for (int j = 0; j < columnas; j++) {
             // Si el valor es 1 (Mi PARED), se dibuja el numero con #
@@ -52,7 +52,7 @@ void imprimirLaberinto(int** matriz, int filas, int columnas){
         cout << endl; // Salto de linea al terminar cada fila
     }
 }
-void generarLaberinto(int** matriz, int filas, int columnas){
+void generarLaberinto(int** matriz, int filas, int columnas){  // Aqui es donde se genera mi laberinto
     // Preparo la mochila (pila) y el punto de donde partira
     stack<Punto> pila;
     Punto inicio = {1,1};
@@ -88,4 +88,58 @@ void generarLaberinto(int** matriz, int filas, int columnas){
     // Aseguro que la entrada y la salida estan marcadas 
     matriz[1][1] = CAMINO;
     matriz[filas - 2][columnas - 2] = CAMINO;
+}
+void resolverLaberinto(int** matriz, int filas, int columnas) {   // Aqui es donde le busco la solucion a mi laberinto con BFS
+    // Herramienta de navegación 
+    queue<Punto> cola;
+    // Matriz de 'padres' para recordar de dónde vinimos y reconstruir el camino
+    vector<vector<Punto>> padre(filas, vector<Punto>(columnas, {-1, -1}));
+    vector<vector<bool>> visitado(filas, vector<bool>(columnas, false));
+
+    Punto inicio = {1, 1};
+    Punto fin = {filas - 2, columnas - 2};
+
+    cola.push(inicio);
+    visitado[inicio.y][inicio.x] = true;
+
+    // Direcciones de movimiento simple (1 paso a la vez)
+    int dy_r[] = {0, 0, 1, -1};
+    int dx_r[] = {1, -1, 0, 0};
+
+    bool encontrado = false;
+
+    // Exploración estilo "Onda de Agua"
+    while (!cola.empty()) {
+        Punto actual = cola.front();
+        cola.pop();
+
+        if (actual.y == fin.y && actual.x == fin.x) {
+            encontrado = true;
+            break;
+        }
+
+        for (int i = 0; i < 4; i++) {
+            int ny = actual.y + dy_r[i];
+            int nx = actual.x + dx_r[i];
+
+            // Si es camino (0) y no lo hemos visitado
+            if (ny >= 0 && ny < filas && nx >= 0 && nx < columnas && 
+                matriz[ny][nx] == CAMINO && !visitado[ny][nx]) {
+                
+                visitado[ny][nx] = true;
+                padre[ny][nx] = actual; // Guardo quién es el "padre" de esta celda
+                cola.push({ny, nx});
+            }
+        }
+    }
+
+    // Reconstrucción del camino (El rastro de Ariadna)
+    if (encontrado) {
+        Punto paso = fin;
+        while (!(paso.y == inicio.y && paso.x == inicio.x)) {
+            matriz[paso.y][paso.x] = RUTA_SOLUCION; // Marcamos con 2
+            paso = padre[paso.y][paso.x]; // Retrocedemos al padre
+        }
+        matriz[inicio.y][inicio.x] = RUTA_SOLUCION; // Marcamos el inicio
+    }
 }
